@@ -18,20 +18,21 @@ pipeline{
         }
         stage("OWASP Dependency Check"){
             steps{
-                dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'dc'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'dc' #this will scan all the directory ./ indicates all directory
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'  #after scanning owasp will pulbish one report with pattern and store it in same directory 
+                                                                                      with name /dependency-check-report.xml
             }
         }
         stage("Sonar Quality Gate Scan"){
             steps{
-                timeout(time: 2, unit: "MINUTES"){
+                timeout(time: 2, unit: "MINUTES"){                            #wait for 2 mins if it dosent start scanning in 2min it will skip and move forward
                     waitForQualityGate abortPipeline: false
                 }
             }
         }
         stage("Trivy File System Scan"){
             steps{
-                sh "trivy fs --format  table -o trivy-fs-report.html ."
+                sh "trivy fs --format  table -o trivy-fs-report.html ."  # -o is option
             }
         }
         stage("Deploy using Docker compose"){
